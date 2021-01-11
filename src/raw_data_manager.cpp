@@ -8,9 +8,8 @@
 
 void msgCallback(const sensor_msgs::LaserScan::ConstPtr &msg) {
 
-	float arr[1000];
+	float *arr = new float[1000];
 	std::vector<int> v;
-	int count = 0;
 	int flag = 0;
 
 	ros::NodeHandle nh_pub;
@@ -24,9 +23,7 @@ void msgCallback(const sensor_msgs::LaserScan::ConstPtr &msg) {
 
 		//ROS_INFO("front distance = %.2f cm", arr[i]*100);
 		if(arr[i] < 0.6) {
-			ROS_INFO("front distance = %.2f cm", arr[i]*100);
 			v.push_back(i);
-			count++;
 			flag = 1;
 		}
 	}
@@ -37,12 +34,15 @@ void msgCallback(const sensor_msgs::LaserScan::ConstPtr &msg) {
 	ROS_INFO("left = %d cm", dist_msg.left_dist);
 
 	if(flag==1) {
-		int median = count / 2;
-		ROS_INFO("r = %.2f", arr[v[median]]);
+		int median = v.size() / 2;
 		float front_dist = arr[v[median]];
 		// cm단위로 데이터 넣음
 		dist_msg.front_dist = front_dist * 100;
+		ROS_INFO("front = %d cm", dist_msg.front_dist);
 	}
+	
+	// 다 쓰고 반환
+	delete arr;
 
 	while(ros::ok()){
 		dist_pub.publish(dist_msg); // 데이터 보내기
