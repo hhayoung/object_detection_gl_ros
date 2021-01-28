@@ -21,6 +21,6 @@
 
   <node pkg="object_detection_gl_ros" type="raw_data_manager" name="raw_data_manager" />
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find object_detection_gl_ros)/rviz/config.rviz" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find object_detection_gl_ros)/rviz/config.rviz" /> -->
 
 </launch>

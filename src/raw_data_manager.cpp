@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#define PI 3.14159265359
+
 void msgCallback(const sensor_msgs::LaserScan::ConstPtr &msg) {
 
 	float *arr = new float[1000];
@@ -31,7 +33,7 @@ void msgCallback(const sensor_msgs::LaserScan::ConstPtr &msg) {
 	float left_dist = msg->ranges[999];
 	// 마찬가지로 cm단위로 데이터 넣음
 	dist_msg.left_dist = left_dist * 100;
-	ROS_INFO("left = %d cm", dist_msg.left_dist);
+	//ROS_INFO("left = %d cm", dist_msg.left_dist);
 
 	if(flag==1) {
 		int median = v.size() / 2;
@@ -39,8 +41,22 @@ void msgCallback(const sensor_msgs::LaserScan::ConstPtr &msg) {
 		// cm단위로 데이터 넣음
 		dist_msg.front_dist = front_dist * 100;
 		ROS_INFO("front = %d cm", dist_msg.front_dist);
+
+		// width 값 구하기(오차있음)
+		float r = front_dist;
+		// ROS_INFO("v.front r = %.2f", arr[v.front()]);
+		// ROS_INFO("v.back r = %.2f", arr[v.back()]);
+		// ROS_INFO("avg r = %.2f", r);
+
+		float degree = ((v.back()+1) * 0.18) - ((v.front()+1) * 0.18);
+		ROS_INFO("degree = %f", degree);
+		float seta = degree * PI / 180; // degree -> radian
+		ROS_INFO("seta = %f", seta); // 최대 20도가 끝
+
+		float width = 2 * r * sin(seta / 2);
+		ROS_INFO("width = %.2f",width);
+
 	}
-	
 	// 다 쓰고 반환
 	delete arr;
 
@@ -48,6 +64,7 @@ void msgCallback(const sensor_msgs::LaserScan::ConstPtr &msg) {
 		dist_pub.publish(dist_msg); // 데이터 보내기
 		ros::spinOnce(); // 있어야 while문 벗어남
 	}
+	
 }
 
 
@@ -58,7 +75,7 @@ int main(int argc, char **argv)
 
 	ros::Subscriber raw_lidar_sub = nh.subscribe("raw_lidar", 100, msgCallback);
 
-	ros::spin(); // spin()위에 있는 sub들이 동작.
+	ros::spin();
 
 	return 0;
 }
